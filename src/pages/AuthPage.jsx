@@ -6,73 +6,101 @@ const AuthPage = () => {
   const { user, generateOtp, verifyOtp, register, loginUser } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect if already logged in
   useEffect(() => {
-    if (user) {
-      navigate("/dashboard");
-    }
+    if (user) navigate("/dashboard");
   }, [user, navigate]);
 
-  const [activeTab, setActiveTab] = useState("login"); // "login" or "signup"
-  const [step, setStep] = useState(1); // Signup steps
+  const [activeTab, setActiveTab] = useState("login");
+  const [step, setStep] = useState(1);
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
-  const [formData, setFormData] = useState({
-    name: "",
-    mobile: "",
-    password: "",
-  });
+  const [formData, setFormData] = useState({ name: "", mobile: "", password: "" });
+
+  // --- Loading states ---
+  const [loading, setLoading] = useState(false);
 
   // --- Handlers ---
   const handleGenerateOtp = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       await generateOtp(email);
       setStep(2);
     } catch (error) {
       alert(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       await verifyOtp(email, otp);
       setStep(3);
     } catch (error) {
       alert(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       await register(formData, email);
       alert("Registration Successful!");
       setStep(1);
-      setEmail("");
-      setOtp("");
-      setFormData({ name: "", mobile: "", password: "" });
-      setActiveTab("login"); // Switch to login after registration
+      setEmail(""); setOtp(""); setFormData({ name: "", mobile: "", password: "" });
+      setActiveTab("login");
     } catch (error) {
       alert("Registration failed: " + error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       await loginUser(email, formData.password);
       alert("Login Successful!");
     } catch (error) {
       alert("Login failed: " + error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
+  // --- Button with spinner ---
+  const Spinner = () => (
+    <svg
+      className="animate-spin h-5 w-5 text-white mx-auto"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        className="opacity-25"
+        cx="12" cy="12" r="10"
+        stroke="currentColor"
+        strokeWidth="4"
+      ></circle>
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+      ></path>
+    </svg>
+  );
+
   return (
-    <div className="flex flex-col items-center justify-center w-full min-h-screen ">
-      <div class="flex items-center justify-center my-5 rounded-full">
-        <img src="../src/assets/images.jpg" alt="Logo" class="max-w-4/5 rounded-full max-h-4/5" />
+    <div className="flex flex-col items-center justify-center w-full min-h-screen">
+      <div className="flex items-center justify-center my-5 rounded-full">
+        <img src="../src/assets/images.jpg" alt="Logo" className="max-w-4/5 rounded-full max-h-4/5" />
       </div>
 
       <div className="bg-white shadow-2xl rounded-3xl w-full max-w-md p-6">
@@ -80,31 +108,17 @@ const AuthPage = () => {
         <div className="flex justify-around mb-6 bg-blue-100 rounded-2xl overflow-hidden">
           <button
             className={`flex-1 py-2 text-lg font-semibold transition ${activeTab === "login"
-                ? "bg-blue-300 text-white rounded-2xl shadow-inner"
-                : "text-blue-700 hover:bg-blue-200"
-              }`}
-            onClick={() => {
-              setActiveTab("login");
-              setStep(1);
-              setEmail("");
-              setOtp("");
-              setFormData({ name: "", mobile: "", password: "" });
-            }}
+              ? "bg-blue-300 text-white rounded-2xl shadow-inner"
+              : "text-blue-700 hover:bg-blue-200"}`}
+            onClick={() => { setActiveTab("login"); setStep(1); setEmail(""); setOtp(""); setFormData({ name: "", mobile: "", password: "" }); }}
           >
             Login
           </button>
           <button
             className={`flex-1 py-2 text-lg font-semibold transition ${activeTab === "signup"
-                ? "bg-blue-300 text-white rounded-2xl shadow-inner"
-                : "text-blue-700 hover:bg-blue-200"
-              }`}
-            onClick={() => {
-              setActiveTab("signup");
-              setStep(1);
-              setEmail("");
-              setOtp("");
-              setFormData({ name: "", mobile: "", password: "" });
-            }}
+              ? "bg-blue-300 text-white rounded-2xl shadow-inner"
+              : "text-blue-700 hover:bg-blue-200"}`}
+            onClick={() => { setActiveTab("signup"); setStep(1); setEmail(""); setOtp(""); setFormData({ name: "", mobile: "", password: "" }); }}
           >
             Sign Up
           </button>
@@ -114,25 +128,20 @@ const AuthPage = () => {
         {activeTab === "login" && (
           <form onSubmit={handleLogin} className="space-y-4">
             <input
-              type="email"
-              placeholder="Email"
-              value={email}
+              type="email" placeholder="Email" value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-300 outline-none"
+              required className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-300 outline-none"
             />
             <input
-              type="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={(e) =>
-                setFormData({ ...formData, password: e.target.value })
-              }
-              required
-              className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-300 outline-none"
+              type="password" placeholder="Password" value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              required className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-300 outline-none"
             />
-            <button className="w-full bg-blue-400 text-white py-2 rounded-xl hover:bg-blue-500 transition">
-              Login
+            <button
+              className="w-full bg-blue-400 text-white py-2 rounded-xl hover:bg-blue-500 transition flex justify-center"
+              disabled={loading}
+            >
+              {loading ? <Spinner /> : "Login"}
             </button>
           </form>
         )}
@@ -143,67 +152,55 @@ const AuthPage = () => {
             {step === 1 && (
               <form onSubmit={handleGenerateOtp} className="space-y-4">
                 <input
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
+                  type="email" placeholder="Enter your email" value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-300 outline-none"
+                  required className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-300 outline-none"
                 />
-                <button className="w-full bg-blue-400 text-white py-2 rounded-xl hover:bg-blue-500 transition">
-                  Generate OTP
+                <button
+                  className="w-full bg-blue-400 text-white py-2 rounded-xl hover:bg-blue-500 transition flex justify-center"
+                  disabled={loading}
+                >
+                  {loading ? <Spinner /> : "Generate OTP"}
                 </button>
               </form>
             )}
             {step === 2 && (
               <form onSubmit={handleVerifyOtp} className="space-y-4">
                 <input
-                  type="text"
-                  placeholder="Enter OTP"
-                  value={otp}
+                  type="text" placeholder="Enter OTP" value={otp}
                   onChange={(e) => setOtp(e.target.value)}
-                  required
-                  className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-300 outline-none"
+                  required className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-300 outline-none"
                 />
-                <button className="w-full bg-green-400 text-white py-2 rounded-xl hover:bg-green-500 transition">
-                  Verify OTP
+                <button
+                  className="w-full bg-green-400 text-white py-2 rounded-xl hover:bg-green-500 transition flex justify-center"
+                  disabled={loading}
+                >
+                  {loading ? <Spinner /> : "Verify OTP"}
                 </button>
               </form>
             )}
             {step === 3 && (
               <form onSubmit={handleRegister} className="space-y-4">
                 <input
-                  type="text"
-                  placeholder="Full Name"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  required
-                  className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-300 outline-none"
+                  type="text" placeholder="Full Name" value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  required className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-300 outline-none"
                 />
                 <input
-                  type="tel"
-                  placeholder="Mobile Number"
-                  value={formData.mobile}
-                  onChange={(e) =>
-                    setFormData({ ...formData, mobile: e.target.value })
-                  }
-                  required
-                  className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-300 outline-none"
+                  type="tel" placeholder="Mobile Number" value={formData.mobile}
+                  onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
+                  required className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-300 outline-none"
                 />
                 <input
-                  type="password"
-                  placeholder="Password"
-                  value={formData.password}
-                  onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
-                  }
-                  required
-                  className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-300 outline-none"
+                  type="password" placeholder="Password" value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  required className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-300 outline-none"
                 />
-                <button className="w-full bg-purple-400 text-white py-2 rounded-xl hover:bg-purple-500 transition">
-                  Register
+                <button
+                  className="w-full bg-purple-400 text-white py-2 rounded-xl hover:bg-purple-500 transition flex justify-center"
+                  disabled={loading}
+                >
+                  {loading ? <Spinner /> : "Register"}
                 </button>
               </form>
             )}

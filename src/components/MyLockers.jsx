@@ -28,6 +28,30 @@ const MyLockers = () => {
     fetchLockers();
   }, []);
 
+  // --- Spinner Component ---
+  const Spinner = () => (
+    <svg
+      className="animate-spin h-4 w-4 text-white mx-auto"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        className="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="4"
+      ></circle>
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+      ></path>
+    </svg>
+  );
+
   const handleSendOtp = async (lockerId) => {
     setActionLoading(true);
     try {
@@ -87,11 +111,9 @@ const MyLockers = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ lockerId }),
       });
-      console.log(JSON.stringify({lockerId}))
       const data = await res.json();
       if (res.ok) {
         alert(`Locker ${action}ed successfully!`);
-        // Update locker status locally
         setLockers((prev) =>
           prev.map((l) =>
             l.id === lockerId ? { ...l, status: action === "open" ? "OPEN" : "CLOSED" } : l
@@ -108,8 +130,10 @@ const MyLockers = () => {
     }
   };
 
-  if (loading) return <p className="text-center text-gray-500 mt-6">Loading lockers...</p>;
-  if (lockers.length === 0) return <p className="text-center text-gray-500 mt-6">No lockers found.</p>;
+  if (loading)
+    return <p className="text-center text-gray-500 mt-6">Loading lockers...</p>;
+  if (lockers.length === 0)
+    return <p className="text-center text-gray-500 mt-6">No lockers found.</p>;
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -153,9 +177,9 @@ const MyLockers = () => {
               <button
                 disabled={actionLoading}
                 onClick={() => handleSendOtp(locker.id)}
-                className="px-3 py-1 bg-indigo-500 text-white rounded hover:bg-indigo-600 disabled:opacity-50"
+                className="px-3 py-1 bg-indigo-500 text-white rounded hover:bg-indigo-600 disabled:opacity-50 flex justify-center"
               >
-                Generate OTP
+                {actionLoading ? <Spinner /> : "Generate OTP"}
               </button>
             ) : !verified ? (
               <>
@@ -169,34 +193,29 @@ const MyLockers = () => {
                 <button
                   disabled={actionLoading}
                   onClick={handleVerifyOtp}
-                  className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50"
+                  className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50 flex justify-center"
                 >
-                  Verify OTP
+                  {actionLoading ? <Spinner /> : "Verify OTP"}
                 </button>
               </>
             ) : (
               <div className="flex gap-2">
-                <button
-                  disabled={actionLoading}
-                  onClick={() => handleLockerAction(locker.id, "open")}
-                  className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50"
-                >
-                  Open
-                </button>
-                <button
-                  disabled={actionLoading}
-                  onClick={() => handleLockerAction(locker.id, "close")}
-                  className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50"
-                >
-                  Close
-                </button>
-                <button
-                  disabled={actionLoading}
-                  onClick={() => handleLockerAction(locker.id, "empty")}
-                  className="px-3 py-1 bg-violet-500 text-white rounded hover:bg-violet-600 disabled:opacity-50"
-                >
-                  Empty
-                </button>
+                {["open", "close", "empty"].map((action) => (
+                  <button
+                    key={action}
+                    disabled={actionLoading}
+                    onClick={() => handleLockerAction(locker.id, action)}
+                    className={`px-3 py-1 text-white rounded hover:opacity-90 disabled:opacity-50 flex justify-center ${
+                      action === "open"
+                        ? "bg-green-500 hover:bg-green-600"
+                        : action === "close"
+                        ? "bg-red-500 hover:bg-red-600"
+                        : "bg-violet-500 hover:bg-violet-600"
+                    }`}
+                  >
+                    {actionLoading ? <Spinner /> : action.charAt(0).toUpperCase() + action.slice(1)}
+                  </button>
+                ))}
               </div>
             )}
           </div>
