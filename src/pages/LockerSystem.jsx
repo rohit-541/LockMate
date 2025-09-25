@@ -38,12 +38,12 @@ const LockerDashboard = () => {
                 </div>
 
                 <div className="flex items-center gap-6">
-                    <button
+                    {/* <button
                         onClick={() => navigate("/database")}
                         className="flex items-center gap-2 text-gray-700 hover:text-indigo-600"
                     >
                         <Database size={18} /> Database
-                    </button>
+                    </button> */}
                     <button
                         onClick={handleDashboardNavigation}
                         className="flex items-center gap-2 text-red-500 hover:text-red-600"

@@ -87,6 +87,7 @@ const MyLockers = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ lockerId }),
       });
+      console.log(JSON.stringify({lockerId}))
       const data = await res.json();
       if (res.ok) {
         alert(`Locker ${action}ed successfully!`);
@@ -188,6 +189,13 @@ const MyLockers = () => {
                   className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50"
                 >
                   Close
+                </button>
+                <button
+                  disabled={actionLoading}
+                  onClick={() => handleLockerAction(locker.id, "empty")}
+                  className="px-3 py-1 bg-violet-500 text-white rounded hover:bg-violet-600 disabled:opacity-50"
+                >
+                  Empty
                 </button>
               </div>
             )}
