@@ -70,16 +70,19 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="flex items-center justify-center w-full min-h-screen bg-gradient-to-r from-teal-400 to-blue-500">
+    <div className="flex flex-col items-center justify-center w-full min-h-screen ">
+      <div class="flex items-center justify-center my-5 rounded-full">
+        <img src="../src/assets/images.jpg" alt="Logo" class="max-w-4/5 rounded-full max-h-4/5" />
+      </div>
+
       <div className="bg-white shadow-2xl rounded-3xl w-full max-w-md p-6">
         {/* Tabs */}
         <div className="flex justify-around mb-6 bg-blue-100 rounded-2xl overflow-hidden">
           <button
-            className={`flex-1 py-2 text-lg font-semibold transition ${
-              activeTab === "login"
+            className={`flex-1 py-2 text-lg font-semibold transition ${activeTab === "login"
                 ? "bg-blue-300 text-white rounded-2xl shadow-inner"
                 : "text-blue-700 hover:bg-blue-200"
-            }`}
+              }`}
             onClick={() => {
               setActiveTab("login");
               setStep(1);
@@ -91,11 +94,10 @@ const AuthPage = () => {
             Login
           </button>
           <button
-            className={`flex-1 py-2 text-lg font-semibold transition ${
-              activeTab === "signup"
+            className={`flex-1 py-2 text-lg font-semibold transition ${activeTab === "signup"
                 ? "bg-blue-300 text-white rounded-2xl shadow-inner"
                 : "text-blue-700 hover:bg-blue-200"
-            }`}
+              }`}
             onClick={() => {
               setActiveTab("signup");
               setStep(1);
